@@ -23,6 +23,7 @@ io.on('connection', function(socket){
     socket.touching = true;
     var date = new Date();
     socket.update_time = date.getTime();
+    socket.broadcast.emit('broadcast pos', getPos());
   });
 
   socket.on('no touch', function (data) {
@@ -32,6 +33,11 @@ io.on('connection', function(socket){
 });
 
 app.get('/location', function(req, res){
+  //res.send(pos.x + ',' + pos.y);
+  res.json(getPos());
+});
+
+function getPos() {
   var pos = {x: 0, y: 0}
   var x_sum = 0;
   var y_sum = 0;
@@ -56,10 +62,8 @@ app.get('/location', function(req, res){
   if (n_touching > 0){
     pos = {x: x_sum/n_touching, y: y_sum/n_touching}
   }
-
-  //res.send(pos.x + ',' + pos.y);
-  res.json(pos);
-});
+  return pos;
+}
 
 var server = http.listen(3000, function () {
   var host = server.address().address;
