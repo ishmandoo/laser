@@ -23,7 +23,6 @@ io.on('connection', function(socket){
     socket.touching = true;
     var date = new Date();
     socket.update_time = date.getTime();
-    socket.broadcast.emit('broadcast pos', getPos());
   });
 
   socket.on('no touch', function (data) {
@@ -31,6 +30,13 @@ io.on('connection', function(socket){
     socket.touching = false;
   });
 });
+
+
+
+setInterval(function() {
+  io.sockets.emit('broadcast pos', getPos());
+}, 50);
+
 
 app.get('/location', function(req, res){
   //res.send(pos.x + ',' + pos.y);
