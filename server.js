@@ -53,17 +53,18 @@ setInterval(function() {
 }, 5000);
 
 function chooseNew() {
-  console.log("Choosing a new user")
+  console.log("Choosing a new user from " + io.sockets.sockets.length)
   if (active_socket) {
     active_socket.emit("deactivate");
     active_socket.active = false;
   }
   active_socket = io.sockets.sockets[Math.floor(Math.random()*io.sockets.sockets.length)];
 
-  console.log(io.sockets.sockets.length)
-  console.log(active_socket.id)
-  active_socket.emit("activate");
-  active_socket.activate = true;
+  if (active_socket) {
+    console.log(active_socket.id)
+    active_socket.emit("activate");
+    active_socket.activate = true;
+  }
 }
 
 
@@ -73,8 +74,8 @@ app.get('/location', function(req, res){
 });
 
 function getPos() {
-  /*
   var pos = {x: 0, y: 0}
+  /*
   var x_sum = 0;
   var y_sum = 0;
   var n_touching = 0;
@@ -100,7 +101,10 @@ function getPos() {
   }
   return pos;
   */
-  return active_socket.pos;
+  if (active_socket) {
+    return active_socket.pos;
+  }
+  return pos;
 }
 
 var server = http.listen(3000, function () {

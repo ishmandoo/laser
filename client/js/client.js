@@ -66,3 +66,13 @@ socket.on('activate', function(msg){
   ctx.font = "50px Arial"
   ctx.fillText("Touch Me!",canvas_w/2-115,canvas_h/2-25);
 });
+
+$(window).blur(function() {
+  console.log("blur")
+  socket.io.disconnect();
+});
+
+$(window).focus(function() {
+  console.log("focus")
+  socket.io.connect();
+});
