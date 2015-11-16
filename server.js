@@ -3,6 +3,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+
+var pos = {x: 0, y: 0, users: 0}
+
 var active_socket = false;
 
 app.get('/', function (req, res) {
@@ -74,7 +77,7 @@ app.get('/location', function(req, res){
 });
 
 function getPos() {
-  var pos = {x: 0, y: 0}
+  pos.users = io.sockets.sockets.length;
   /*
   var x_sum = 0;
   var y_sum = 0;
@@ -102,7 +105,8 @@ function getPos() {
   return pos;
   */
   if (active_socket) {
-    return active_socket.pos;
+    pos.x = active_socket.pos.x;
+    pos.y = active_socket.pos.y;
   }
   return pos;
 }
