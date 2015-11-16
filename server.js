@@ -3,6 +3,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var active_socket = false;
+
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/client/html/index.html');
 });
@@ -15,6 +17,8 @@ io.on('connection', function(socket){
   socket.pos = {x: 0, y:0}
   socket.touching = false;
   socket.updateTime = 0;
+  socket.active = false;
+  socket.emit('deactivate');
 
 
   socket.on('new pos', function (pos) {
@@ -29,6 +33,13 @@ io.on('connection', function(socket){
     console.log("no touch");
     socket.touching = false;
   });
+
+  socket.on('disconnect', function (data) {
+    console.log("disconenct");
+    if (socket.active) {
+      chooseNew();
+    }
+  });
 });
 
 
@@ -37,6 +48,24 @@ setInterval(function() {
   io.sockets.emit('broadcast pos', getPos());
 }, 50);
 
+setInterval(function() {
+  chooseNew();
+}, 5000);
+
+function chooseNew() {
+  console.log("Choosing a new user")
+  if (active_socket) {
+    active_socket.emit("deactivate");
+    active_socket.active = false;
+  }
+  active_socket = io.sockets.sockets[Math.floor(Math.random()*io.sockets.sockets.length)];
+
+  console.log(io.sockets.sockets.length)
+  console.log(active_socket.id)
+  active_socket.emit("activate");
+  active_socket.activate = true;
+}
+
 
 app.get('/location', function(req, res){
   //res.send(pos.x + ',' + pos.y);
@@ -44,6 +73,7 @@ app.get('/location', function(req, res){
 });
 
 function getPos() {
+  /*
   var pos = {x: 0, y: 0}
   var x_sum = 0;
   var y_sum = 0;
@@ -69,6 +99,8 @@ function getPos() {
     pos = {x: x_sum/n_touching, y: y_sum/n_touching}
   }
   return pos;
+  */
+  return active_socket.pos;
 }
 
 var server = http.listen(3000, function () {
