@@ -88,6 +88,11 @@ socket.on('activate', function(msg){
   ctx.font = "50px Arial"
   ctx.fillText("Your turn!",canvas_w/2-115,canvas_h/2-25);
 });
+
+socket.on('broadcast pos', function(pos){
+  ctx.fillStyle="#000000";
+  ctx.fillRect(pos.x*canvas_w,pos.y*canvas_h,7,7);
+});
 /*
 $(window).blur(function() {
 });
