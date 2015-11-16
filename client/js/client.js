@@ -3,6 +3,7 @@ socket = io();
 
 
 active = false;
+touched = true;
 
 function startup() {
 
@@ -25,6 +26,11 @@ function handleMove(evt){
   console.log("touchstart.");
   evt.preventDefault();
 
+  touched = true;
+  if (!socket.connected) {
+    socket.io.connect();
+  }
+
   var touch = evt.changedTouches[0];
   var pos = {x: touch.pageX/canvas_w, y: touch.pageY/canvas_h};
 
@@ -43,20 +49,36 @@ function handleEnd(evt){
 
 socket.on('deactivate', function(msg){
   console.log('deactivate');
+
+  if (!touched) {
+    socket.io.disconnect();
+
+    ctx.fillStyle="#FF0000";
+    ctx.fillRect(0,0,canvas_w,canvas_h);
+
+
+    ctx.fillStyle="#000000";
+    ctx.font = "50px Arial"
+    ctx.fillText("Still here?",canvas_w/2-125,canvas_h/2-25);
+    ctx.fillText("Touch for a turn",canvas_w/2-195,canvas_h/2+25);
+  } else {
+
+    ctx.fillStyle="#FFFF00";
+    ctx.fillRect(0,0,canvas_w,canvas_h);
+
+
+    ctx.fillStyle="#000000";
+    ctx.font = "50px Arial"
+    ctx.fillText("Just a sec...",canvas_w/2-125,canvas_h/2-25);
+  }
+
   active = false;
-
-  ctx.fillStyle="#FF0000";
-  ctx.fillRect(0,0,canvas_w,canvas_h);
-
-
-  ctx.fillStyle="#000000";
-  ctx.font = "50px Arial"
-  ctx.fillText("Wait your turn",canvas_w/2-115,canvas_h/2-25);
 });
 
 socket.on('activate', function(msg){
   console.log('activate');
   active = true;
+  touched = false;
 
   ctx.fillStyle="#00FF00";
   ctx.fillRect(0,0,canvas_w,canvas_h);
@@ -64,7 +86,7 @@ socket.on('activate', function(msg){
 
   ctx.fillStyle="#000000";
   ctx.font = "50px Arial"
-  ctx.fillText("Touch Me!",canvas_w/2-115,canvas_h/2-25);
+  ctx.fillText("Your turn!",canvas_w/2-115,canvas_h/2-25);
 });
 /*
 $(window).blur(function() {
